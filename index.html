@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebab Order System v6</title>
+    <title>Kebab Order System v7</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f7f9fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; position: relative; }
@@ -27,7 +27,7 @@
         /* ปุ่มดูบอร์ดซ้ายล่าง */
         .board-trigger-btn { position: fixed; bottom: 20px; left: 20px; background: #4a5568; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; }
         
-        /* ปุ่มฟันเฟืองตั้งค่าขวาล่าง (จะโชว์เฉพาะหน้าหลัก) */
+        /* ปุ่มฟันเฟืองตั้งค่าขวาล่าง */
         .settings-trigger-btn { position: fixed; bottom: 20px; right: 20px; background: #a0aec0; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; transition: transform 0.2s ease; }
         .settings-trigger-btn:hover { transform: rotate(45deg); background: #718096; }
 
@@ -39,9 +39,9 @@
 </head>
 <body>
 
-<!-- ปุ่มนำทางรอบนอก -->
-<button class="board-trigger-btn" onclick="hideSettingsBtn(); showStep('step-board'); updateBoardView();">📋 ดูบอร์ดออเดอร์</button>
-<button id="btn-gear" class="settings-trigger-btn" onclick="openSettingsWithPassword()">⚙️</button>
+<!-- ปุ่มลอยภายนอก -->
+<button id="btn-board-global" class="board-trigger-btn" onclick="goToBoardPage()">📋 ดูบอร์ดออเดอร์</button>
+<button id="btn-gear-global" class="settings-trigger-btn" onclick="openSettingsWithPassword()">⚙️</button>
 
 <div class="card">
     
@@ -126,11 +126,11 @@
         <button class="btn" style="background: #e63946; padding: 5px 10px; font-size: 12px; width: auto;" onclick="clearBoardData()">ล้างบอร์ดทั้งหมด (พ่อค้า)</button>
     </div>
 
-    <!-- หน้าตั้งค่าลับหลังบ้าน (สำหรับปรับโควตาออเดอร์สูงสุด) -->
+    <!-- หน้าตั้งค่าลับหลังบ้าน -->
     <div id="step-settings" class="step">
         <h2>⚙️ ตั้งค่าโควตาร้านค้า</h2>
         <p style="color: #4a5568; margin-bottom: 20px; font-size: 14px;">กำหนดจำนวนออเดอร์สูงสุดที่รับได้ต่อวัน</p>
-        <input type="number" id="input-max-limit" min="1" max="100" placeholder="ใส่จำนวนชิ้นที่ต้องการ (เช่น 5, 10, 20)">
+        <input type="number" id="input-max-limit" min="1" max="100" placeholder="ใส่จำนวนชิ้นที่ต้องการ">
         <button class="btn" onclick="saveNewLimit()">บันทึกโควตาใหม่</button>
         <button class="btn btn-secondary" style="background: #6c757d;" onclick="resetOrderProcess()">ยกเลิก / กลับหน้าแรก</button>
     </div>
@@ -140,20 +140,37 @@
 <script>
     let currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
 
-    // ดึงค่าโควตาที่เคยบันทึกไว้ ถ้าไม่มีให้เริ่มที่ 5 เป็นค่าตั้งต้น
     function getMaxLimit() {
         return parseInt(localStorage.getItem('kebab_max_limit')) || 5;
     }
 
-    window.onload = function() { checkSaturdayReset(); updateCounter(); showSettingsBtn(); };
+    window.onload = function() { checkSaturdayReset(); updateCounter(); };
     
+    // ฟังก์ชันจัดการเปิด-ปิดหน้า และควบคุมปุ่มลอยภายนอกให้สัมพันธ์กัน
     function showStep(stepId) { 
         document.querySelectorAll('.step').forEach(step => step.classList.remove('active')); 
         document.getElementById(stepId).classList.add('active'); 
+
+        // ควบคุมการแสดงผลปุ่มภายนอกตามหน้าปัจจุบัน
+        if (stepId === 'step-start') {
+            document.getElementById('btn-gear-global').style.display = 'flex';
+            document.getElementById('btn-board-global').style.display = 'block';
+        } else {
+            // หน้าอื่นๆ ทั้งหมดให้ซ่อนปุ่มฟันเฟืองไว้เพื่อความสะอาดของหน้าจอ
+            document.getElementById('btn-gear-global').style.display = 'none';
+            // ปล่อยให้ปุ่มดูบอร์ดโชว์ได้ ยกเว้นตอนอยู่ในหน้าบอร์ดเองหรือหน้าตั้งค่า
+            if (stepId === 'step-board' || stepId === 'step-settings') {
+                document.getElementById('btn-board-global').style.display = 'none';
+            } else {
+                document.getElementById('btn-board-global').style.display = 'block';
+            }
+        }
     }
 
-    function showSettingsBtn() { document.getElementById('btn-gear').style.display = 'flex'; }
-    function hideSettingsBtn() { document.getElementById('btn-gear').style.display = 'none'; }
+    function goToBoardPage() {
+        updateBoardView();
+        showStep('step-board');
+    }
 
     function checkOrderAvailability() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
@@ -161,7 +178,6 @@
         let dayOfWeek = now.getDay(); 
         if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) { alert("ขออภัยครับ ระบบปิดรับออเดอร์ในวันศุกร์ เสาร์ และอาทิตย์"); return; }
         if (boardData.length >= getMaxLimit()) { alert("ขออภัยครับ วันนี้ออเดอร์เต็มแล้ว ไว้มาสั่งใหม่วันต่อไปนะ!"); return; }
-        hideSettingsBtn();
         showStep('step-veg');
     }
 
@@ -242,29 +258,29 @@
         });
     }
 
+    // ฟังก์ชันเคลียร์ค่าและบังคับให้กลับมาเริ่มหน้าแรกอย่างถูกต้อง
     function resetOrderProcess() {
         currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
-        document.getElementById('input-name').value = ''; document.getElementById('input-room').value = '';
+        let nameField = document.getElementById('input-name');
+        let roomField = document.getElementById('input-room');
+        if(nameField) nameField.value = '';
+        if(roomField) roomField.value = '';
         document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
         updateCounter();
-        showSettingsBtn();
-        showStep('step-start');
+        showStep('step-start'); // กลับหน้าหลักและเปิดปุ่มลอยทั้งหมด
     }
 
-    // เปิดหน้าตั้งค่าด้วยรหัสผ่าน
     function openSettingsWithPassword() {
         let passwordInput = prompt("กรุณาใส่รหัสผ่านของพ่อค้าเพื่อเข้าสู่หน้าตั้งค่า:");
         if (passwordInput === null) return;
         if (passwordInput.replace(/\s+/g, '') === '096665') {
             document.getElementById('input-max-limit').value = getMaxLimit();
-            hideSettingsBtn();
             showStep('step-settings');
         } else {
             alert('❌ รหัสผ่านไม่ถูกต้อง! ไม่ได้รับอนุญาตให้เข้าหน้าตั้งค่า');
         }
     }
 
-    // บันทึกค่าโควตาใหม่ด้วยการยืนยันรหัสผ่านอีกครั้ง
     function saveNewLimit() {
         let newLimit = parseInt(document.getElementById('input-max-limit').value);
         if (!newLimit || newLimit < 1) { alert('กรุณาใส่จำนวนออเดอร์ที่ถูกต้อง (ขั้นต่ำ 1 ชิ้น) ครับ'); return; }
