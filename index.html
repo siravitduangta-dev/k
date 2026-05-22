@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebab Order System (จำกัด 20 ชิ้น)</title>
+    <title>Kebab Order System (จำกัด 20 ชิ้น + รหัสผ่านรีเซ็ต)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -266,7 +266,6 @@
 <script>
     let currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
 
-    // รันทุกครั้งเมื่อเปิดหน้าเว็บเพื่ออัปเดตจำนวนออเดอร์และเช็ควันเสาร์
     window.onload = function() {
         checkSaturdayReset();
         updateCounter();
@@ -277,25 +276,21 @@
         document.getElementById(stepId).classList.add('active');
     }
 
-    // ตรวจสอบเงื่อนไข วันสั่ง และจำนวนชิ้น ก่อนให้เข้าหน้าฟอร์ม
     function checkOrderAvailability() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
         let now = new Date();
-        let dayOfWeek = now.getDay(); // 0 = อาทิตย์, 1 = จันทร์, ..., 5 = ศุกร์, 6 = เสาร์
+        let dayOfWeek = now.getDay(); 
 
-        // 1. ตรวจสอบเงื่อนไขวัน (วันศุกร์=5, เสาร์=6, อาทิตย์=0 ห้ามสั่ง)
         if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
             alert("ขออภัยครับ ระบบปิดรับออเดอร์ในวันศุกร์ เสาร์ และอาทิตย์ จะเปิดให้สั่งอีกครั้งวันจันทร์ครับ");
             return;
         }
 
-        // 2. ตรวจสอบจำนวนชิ้น (ไม่เกิน 20)
         if (boardData.length >= 20) {
             alert("ขออภัยครับ วันนี้ออเดอร์เต็ม 20 ชิ้นแล้ว ไว้มาสั่งใหม่วันต่อไปนะ!");
             return;
         }
 
-        // ผ่านเงื่อนไข ไปต่อหน้าเลือกผัก
         showStep('step-veg');
     }
 
@@ -348,7 +343,6 @@
         currentOrder.name = name;
         currentOrder.room = room;
 
-        // คำนวณวันที่สั่ง และวันรับของ
         let now = new Date();
         let dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
         let dayOfWeek = now.getDay();
@@ -362,7 +356,6 @@
         currentOrder.orderDate = dateString;
         currentOrder.deliveryDate = deliveryDayName;
 
-        // แสดงผลหน้าทวนรายการ
         document.getElementById('sum-name').innerText = currentOrder.name;
         document.getElementById('sum-room').innerText = currentOrder.room;
         document.getElementById('sum-veg').innerText = currentOrder.veg;
@@ -422,18 +415,30 @@
         showStep('step-start');
     }
 
+    // ฟังก์ชันเคลียร์บอร์ดแบบเช็ครหัสผ่าน (096 665)
     function clearBoardData() {
-        if(confirm('คุณต้องการล้างรายการออเดอร์ทั้งหมดบนบอร์ดนี้ใช่หรือไม่?')) {
-            localStorage.removeItem('kebab_board');
-            updateCounter();
-            updateBoardView();
+        // ให้พิมพ์รหัสผ่านในกล่องข้อความเด้ง (Prompt)
+        let passwordInput = prompt("กรุณาใส่รหัสผ่านของพ่อค้าเพื่อล้างข้อมูลบอร์ด:");
+        
+        // ถ้ากดยกเลิก (Cancel) ให้หยุดทำงานทันที
+        if (passwordInput === null) return; 
+
+        // ตรวจสอบรหัสผ่าน (ตัดช่องว่างออกเพื่อให้พิมพ์ง่ายขึ้น)
+        if (passwordInput.replace(/\s+/g, '') === '096665') {
+            if(confirm('รหัสผ่านถูกต้อง คุณต้องการล้างรายการออเดอร์ทั้งหมดใช่หรือไม่?')) {
+                localStorage.removeItem('kebab_board');
+                updateCounter();
+                updateBoardView();
+                alert('ล้างบอร์ดออเดอร์เรียบร้อยแล้วครับ!');
+            }
+        } else {
+            alert('❌ รหัสผ่านไม่ถูกต้อง! ไม่สามารถล้างบอร์ดได้');
         }
     }
 
-    // ฟังก์ชันเช็ครีเซ็ตทุกวันเสาร์อัตโนมัติ
     function checkSaturdayReset() {
         let now = new Date();
-        if (now.getDay() === 6) { // วันเสาร์ = 6
+        if (now.getDay() === 6) { 
             localStorage.removeItem('kebab_board');
         }
     }
