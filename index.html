@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebab Order System v9</title>
+    <title>Kebab Order System New Generation</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f7f9fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; position: relative; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; min-height: 380px; display: flex; flex-direction: column; justify-content: center; }
-        h2 { color: #2c3e50; margin-bottom: 25px; font-size: 24px; }
-        .btn { background: #ff6b6b; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; width: 100%; margin-bottom: 12px; font-weight: bold; }
-        .btn:hover { background: #ff5252; transform: translateY(-2px); }
+        body { background: #f7f9fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 460px; text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        h2 { color: #2c3e50; margin-bottom: 20px; font-size: 24px; }
+        h3 { color: #4a5568; margin-bottom: 15px; font-size: 18px; text-align: left; }
+        
+        /* ปุ่มหลักภายในแอป */
+        .btn { background: #ff6b6b; color: white; border: none; padding: 14px 25px; font-size: 18px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; width: 100%; margin-bottom: 12px; font-weight: bold; }
+        .btn:hover { background: #ff5252; transform: translateY(-1px); }
         .btn:disabled { background: #cccccc !important; cursor: not-allowed; transform: none !important; }
         .btn-secondary { background: #4ecdc4; color: white; }
         .btn-secondary:hover { background: #36b3ab; }
@@ -18,302 +21,346 @@
         .btn-danger:hover { background: #c92a3a; }
         .btn-gray { background: #6c757d; color: white; }
         .btn-gray:hover { background: #5a6268; }
-        .opt-btn { background: #f1f3f5; color: #495057; border: 2px solid #e9ecef; }
+        
+        /* ปุ่มตัวเลือกสินค้า */
+        .opt-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .opt-btn { background: #f1f3f5; color: #495057; border: 2px solid #e9ecef; padding: 12px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; font-size: 15px; transition: all 0.2s; }
         .opt-btn.selected { background: #e3fafc; color: #0c8599; border: 2px solid #3bc9db; }
         
-        /* สไตล์การเปิด-ปิดหน้าจอควบคุมด้วย Class */
+        /* ฟอร์มและอินพุต */
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ced4da; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #ff6b6b; }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        /* การสลับหน้าจอ */
         .step { display: none; }
         .step.active { display: block; }
         
-        .summary-box { background: #f1f3f5; padding: 20px; border-radius: 12px; text-align: left; margin-bottom: 25px; }
-        .summary-item { margin-bottom: 10px; font-size: 16px; color: #495057; }
-        .summary-item strong { color: #212529; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ced4da; border-radius: 8px; font-size: 16px; outline: none; }
-        input:focus { border-color: #ff6b6b; }
-        
-        /* ปุ่มนำทางลอยตัวนอกการ์ด */
-        .board-trigger-btn { position: fixed; bottom: 20px; left: 20px; background: #4a5568; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; display: block; }
-        .settings-trigger-btn { position: fixed; bottom: 20px; right: 20px; background: #a0aec0; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; transition: transform 0.2s ease; }
-        .settings-trigger-btn:hover { transform: rotate(45deg); background: #718096; }
+        /* แผงปุ่มด้านล่างของหน้าแรก */
+        .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; gap: 15px; }
+        .nav-mini-btn { background: #4a5568; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; flex: 1; }
+        .nav-mini-btn.gear { background: #a0aec0; max-width: 50px; font-size: 16px; }
+        .nav-mini-btn:hover { opacity: 0.9; }
 
-        .counter-badge { background: #e63946; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; display: inline-block; margin-bottom: 15px; font-weight: bold; }
-        .board-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
-        .board-table th, .board-table td { padding: 8px; border-bottom: 1px solid #dee2e6; }
+        .counter-badge { background: #e63946; color: white; padding: 5px 12px; border-radius: 20px; font-size: 14px; display: inline-block; margin-bottom: 15px; font-weight: bold; }
+        .summary-box { background: #f1f3f5; padding: 20px; border-radius: 12px; text-align: left; margin-bottom: 25px; }
+        .board-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; text-align: left; }
+        .board-table th, .board-table td { padding: 8px; border-bottom: 1px solid #dee2e6; vertical-align: top; }
         .board-table th { background: #f1f3f5; color: #495057; }
+        
+        /* คลาสสปอยเลอร์/ซ่อนข้อมูล */
+        .secure-badge { background: #edf2f7; color: #718096; border: 1px dashed #cbd5e0; padding: 2px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; display: inline-block; font-weight: normal; }
+        .secure-data { display: none; background: #fffaf0; color: #dd6b20; font-weight: bold; padding: 2px 4px; border-radius: 4px; border: 1px solid #fbd38d; }
     </style>
 </head>
 <body>
 
-<!-- ปุ่มนำทางลอยรอบนอกหน้าจอ -->
-<button id="global-board-btn" class="board-trigger-btn" onclick="openBoardView()">📋 ดูบอร์ดออเดอร์</button>
-<button id="global-gear-btn" class="settings-trigger-btn" onclick="openSettingsWithPassword()">⚙️</button>
-
 <div class="card">
     
-    <!-- หน้าแรก: เริ่มสั่งอาหาร -->
+    <!-- 1. หน้าแรกสุด (Main Menu) -->
     <div id="step-start" class="step active">
         <h2>🌯 ร้านเคบับสไตล์คุณ 🌯</h2>
         <div id="order-counter" class="counter-badge">ออเดอร์ตอนนี้: 0/5 ชิ้น</div>
-        <p id="start-msg" style="color: #6c757d; margin-bottom: 30px;">เปิดรับออเดอร์วันจันทร์ - พฤหัสบดี (จำกัดวันละ <span id="text-max-limit">5</span> ชิ้นเท่านั้น)</p>
-        <button id="btn-start-order" class="btn" onclick="checkOrderAvailability()">เริ่มสั่งอาหาร</button>
-    </div>
-
-    <!-- ขั้นตอนที่ 1: เลือกผัก -->
-    <div id="step-veg" class="step">
-        <h2>ขั้นตอนที่ 1: ใส่ผักไหม? 🥗</h2>
-        <button id="veg-yes" class="btn opt-btn" onclick="tempSelect('veg', 'ใส่ผัก', 'veg-yes')">ใส่ผัก</button>
-        <button id="veg-no" class="btn opt-btn" onclick="tempSelect('veg', 'ไม่ใส่ผัก', 'veg-no')">ไม่ใส่ผัก</button>
-        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-        <button class="btn" onclick="goToNext('veg', 'step-sauce')">กดยืนยันเพื่อไปต่อ</button>
-    </div>
-
-    <!-- ขั้นตอนที่ 2: เลือกซอส -->
-    <div id="step-sauce" class="step">
-        <h2>ขั้นตอนที่ 2: เลือกซอส 🍯</h2>
-        <button id="sauce-salad" class="btn opt-btn" onclick="tempSelect('sauce', 'ซอสสลัด (เหมาะกับอกไก่)', 'sauce-salad')">ซอสสลัด (เหมาะกับอกไก่)</button>
-        <button id="sauce-cheese" class="btn opt-btn" onclick="tempSelect('sauce', 'ซอสชีส', 'sauce-cheese')">ซอสชีส</button>
-        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-        <button class="btn" onclick="goToNext('sauce', 'step-chicken')">กดยืนยันเพื่อไปต่อ</button>
-    </div>
-
-    <!-- ขั้นตอนที่ 3: เลือกไก่ -->
-    <div id="step-chicken" class="step">
-        <h2>ขั้นตอนที่ 3: เลือกประเภทไก่ 🍗</h2>
-        <button id="ck-fried" class="btn opt-btn" onclick="tempSelect('chicken', 'ไก่ทอด', 'ck-fried')">ไก่ทอด</button>
-        <button id="ck-boiled" class="btn opt-btn" onclick="tempSelect('chicken', 'อกไก่ต้ม', 'ck-boiled')">อกไก่ต้ม</button>
-        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-        <button class="btn" onclick="goToNext('chicken', 'step-identity')">กดยืนยันเพื่อไปต่อ</button>
-    </div>
-
-    <!-- ขั้นตอนที่ 4: ข้อมูลผู้สั่ง -->
-    <div id="step-identity" class="step">
-        <h2>ขั้นตอนที่ 4: ข้อมูลผู้สั่ง 👤</h2>
-        <input type="text" id="input-name" placeholder="ใส่ชื่อเล่นของคุณ (หรือชื่ออาจารย์)">
-        <input type="text" id="input-room" placeholder="ชั้น/ห้องเรียน หรือ ห้องพักครู (เช่น ม.6/1)">
-        <button class="btn" onclick="saveIdentity()">กดยืนยัน</button>
-    </div>
-
-    <!-- ขั้นตอนที่ 5: ทวนรายการออเดอร์ -->
-    <div id="step-summary" class="step">
-        <h2>ทวนรายการออเดอร์ของคุณ 👀</h2>
-        <div class="summary-box">
-            <div class="summary-item"><strong>ผู้สั่ง:</strong> <span id="sum-name"></span> (<span id="sum-room"></span>)</div>
-            <div class="summary-item"><strong>การใส่ผัก:</strong> <span id="sum-veg"></span></div>
-            <div class="summary-item"><strong>ซอสที่เลือก:</strong> <span id="sum-sauce"></span></div>
-            <div class="summary-item"><strong>ประเภทไก่:</strong> <span id="sum-chicken"></span></div>
-            <div class="summary-item" style="color: #0c8599;"><strong>วันที่สั่ง:</strong> <span id="sum-order-date"></span></div>
-            <div class="summary-item" style="color: #e63946;"><strong>วันที่จะได้รับ:</strong> <span id="sum-delivery-date"></span></div>
-        </div>
-        <p style="color: #e63946; font-size: 13px; margin-bottom: 15px;">*กรุณาตรวจสอบว่าข้อมูลถูกต้องและไม่มีข้อผิดพลาด</p>
-        <button class="btn" onclick="confirmAndPublish()">กดยืนยันรายการออเดอร์</button>
-        <button class="btn btn-gray" onclick="navigateTo('step-veg')">กลับไปแก้ไข</button>
-    </div>
-
-    <!-- หน้าบอร์ดรวมออเดอร์ -->
-    <div id="step-board" class="step">
-        <h2>📋 บอร์ดรายการสั่งซื้อรวม</h2>
-        <p style="color: #868e96; font-size: 12px; margin-bottom: 10px;">(บอร์ดจะรีเซ็ตอัตโนมัติทุกๆ วันเสาร์)</p>
+        <p id="start-msg" style="color: #6c757d; margin-bottom: 25px;">เปิดรับออเดอร์วันจันทร์ - พฤหัสบดี (จำกัดวันละ <span id="text-max-limit">5</span> ชิ้น)</p>
         
-        <div style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #dee2e6; border-radius: 8px;">
+        <button id="btn-start-order" class="btn" onclick="checkOrderAvailability()">เริ่มสั่งอาหาร</button>
+        
+        <!-- แผงปุ่มด้านล่างฝังไว้ภายในการ์ด ป้องกันปุ่มลอยค้างจอ -->
+        <div class="nav-row">
+            <button class="nav-mini-btn" onclick="openBoardPage()">📋 ดูบอร์ดออเดอร์</button>
+            <button class="nav-mini-btn gear" onclick="openSettingsWithPassword()">⚙️</button>
+        </div>
+    </div>
+
+    <!-- 2. หน้าเลือกรายการอาหาร (วัตถุดิบ) -->
+    <div id="step-food-select" class="step">
+        <h2>เลือกสูตรเคบับของคุณ 🍳</h2>
+        
+        <h3>1. การใส่ผัก 🥗</h3>
+        <div class="opt-group">
+            <button id="v-yes" class="opt-btn" onclick="selectItem('veg', 'ใส่ผัก', 'v-yes')">ใส่ผัก</button>
+            <button id="v-no" class="opt-btn" onclick="selectItem('veg', 'ไม่ใส่ผัก', 'v-no')">ไม่ใส่ผัก</button>
+        </div>
+
+        <h3>2. เลือกซอส 🍯</h3>
+        <div class="opt-group">
+            <button id="s-salad" class="opt-btn" onclick="selectItem('sauce', 'ซอสสลัด', 's-salad')">ซอสสลัด</button>
+            <button id="s-cheese" class="opt-btn" onclick="selectItem('sauce', 'ซอสสลัดชีส', 's-cheese')">ซอสสลัดชีส</button>
+        </div>
+
+        <h3>3. ประเภทเนื้อไก่ 🍗</h3>
+        <div class="opt-group">
+            <button id="c-fried" class="opt-btn" onclick="selectItem('chicken', 'ไก่ทอด', 'c-fried')">ไก่ทอด</button>
+            <button id="c-boiled" class="opt-btn" onclick="selectItem('chicken', 'อกไก่ต้มฉีก', 'c-boiled')">อกไก่ต้มฉีก</button>
+        </div>
+
+        <button class="btn" onclick="validateFoodSelection()">กดยืนยันเพื่อไปต่อ</button>
+        <button class="btn btn-gray" onclick="backToMain()">ย้อนกลับ</button>
+    </div>
+
+    <!-- 3. หน้ายืนยันตัวตน (ข้อมูลส่วนตัว + คอมเมนต์) -->
+    <div id="step-identity" class="step">
+        <h2>ข้อมูลผู้สั่งซื้อ 👤</h2>
+        
+        <input type="text" id="input-name" placeholder="ใส่ชื่อเล่นของคุณ">
+        
+        <select id="select-role">
+            <option value="" disabled selected>-- เลือกสถานะของคุณ --</option>
+            <option value="นักเรียน">นักเรียน</option>
+            <option value="อาจารย์">อาจารย์</option>
+        </select>
+        
+        <textarea id="input-comment" placeholder="ต้องการอะไรเป็นพิเศษไหม? พิมพ์บอกได้ที่นี่เลย (ข้อความนี้จะถูกปิดเป็นความลับ)"></textarea>
+
+        <button class="btn" onclick="saveIdentityAndShowSummary()">ตรวจสอบรายการ</button>
+        <button class="btn btn-gray" onclick="changePage('step-food-select')">ย้อนกลับ</button>
+    </div>
+
+    <!-- 4. หน้าสรุปทวนรายการก่อนบันทึก -->
+    <div id="step-summary" class="step">
+        <h2>ทวนรายการออเดอร์ 👀</h2>
+        <div class="summary-box" style="font-size: 15px; line-height: 1.6;">
+            <div><strong>ผู้สั่ง:</strong> <span id="sum-name"></span> (<span id="sum-role" style="color:#0c8599;"></span>)</div>
+            <div><strong>รูปแบบ:</strong> <span id="sum-food"></span></div>
+            <div style="color: #718096; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 4px;">
+                <strong>โน้ตพิเศษ:</strong> <span id="sum-comment"></span>
+            </div>
+        </div>
+        <button class="btn id="btn-submit" onclick="submitFinalOrder()">กดยืนยันรายการสั่งซื้อ</button>
+        <button class="btn btn-gray" onclick="changePage('step-identity')">ย้อนกลับแก้ไข</button>
+    </div>
+
+    <!-- 5. หน้าบอร์ดรวมรายการ (ปกปิดข้อมูลลับ) -->
+    <div id="step-board" class="step">
+        <h2>📋 รายการสั่งซื้อทั้งหมด</h2>
+        <p style="color: #a0aec0; font-size: 11px; margin-bottom: 10px;">ข้อมูลสถานะและข้อความพิเศษถูกปิดกั้นไว้เพื่อความเป็นส่วนตัว</p>
+        
+        <!-- ปุ่มกดเพื่อเปิดหน้ากากข้อมูลลับในตารางทั้งหมด -->
+        <button class="btn btn-secondary" style="padding: 6px; font-size: 12px; margin-bottom: 10px; width: auto;" onclick="unlockSecretData()">🔓 ใส่รหัสเพื่อเปิดดูข้อมูลลับ</button>
+
+        <div style="max-height: 240px; overflow-y: auto; margin-bottom: 25px; border: 1px solid #dee2e6; border-radius: 8px;">
             <table class="board-table">
                 <thead>
                     <tr>
-                        <th>ผู้สั่ง</th>
-                        <th>รายละเอียด</th>
-                        <th>วันที่สั่ง</th>
-                        <th>วันรับของ</th>
+                        <th>ผู้สั่ง (ชื่อ)</th>
+                        <th>รายละเอียดอาหาร</th>
+                        <th>ข้อมูลลับ</th>
                     </tr>
                 </thead>
                 <tbody id="board-content"></tbody>
             </table>
         </div>
-        <!-- แก้ไขปุ่มย้อนกลับตรงนี้ให้ทำงานแยกเด็ดขาด -->
-        <button class="btn btn-secondary" onclick="backToHomeProcess()">🔙 กลับสู่หน้าหลัก / สั่งอาหารเพิ่ม</button>
+        <button class="btn btn-gray" onclick="backToMain()">กลับสู่หน้าหลัก</button>
     </div>
 
-    <!-- ⚙️ หน้าตั้งค่าลับหลังบ้าน (รวมศูนย์เครื่องมือพ่อค้า) -->
+    <!-- 6. ⚙️ หน้าตั้งค่าควบคุม (แผงพ่อค้า) -->
     <div id="step-settings" class="step">
-        <h2>⚙️ แผงควบคุมร้านค้า (พ่อค้า)</h2>
-        <p style="color: #4a5568; margin-bottom: 20px; font-size: 14px;">จัดการระบบและโควตาออเดอร์ประจำวัน</p>
+        <h2>⚙️ แผงจัดการร้านค้า</h2>
+        <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">สิทธิ์การจัดการเฉพาะของพ่อค้าเคบับเท่านั้น</p>
         
-        <!-- ส่วนปรับโควตา -->
-        <div style="text-align: left; margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px;">
-            <label style="font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 8px;">1. จำนวนออเดอร์สูงสุดต่อวัน:</label>
+        <div style="text-align: left; margin-bottom: 20px; border: 1px solid #edf2f7; padding: 15px; border-radius: 10px;">
+            <label style="font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 8px;">1. โควตาออเดอร์สูงสุดวันนี้:</label>
             <input type="number" id="input-max-limit" min="1" max="100">
-            <button class="btn" style="padding: 10px; font-size: 15px; margin-bottom: 0;" onclick="saveNewLimit()">บันทึกโควตาใหม่</button>
+            <button class="btn" style="padding: 10px; font-size: 14px; margin-bottom: 0;" onclick="saveNewLimit()">บันทึกโควตาใหม่</button>
         </div>
 
-        <!-- ส่วนล้างบอร์ด -->
-        <div style="text-align: left; margin-bottom: 25px; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px;">
-            <label style="font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 8px;">2. รีเซ็ตระบบ:</label>
-            <button class="btn btn-danger" style="padding: 10px; font-size: 15px; width: 100%; margin-bottom: 0;" onclick="clearBoardDataInSettings()">ล้างรายการออเดอร์ทั้งหมดบนบอร์ด</button>
+        <div style="text-align: left; margin-bottom: 25px; border: 1px solid #edf2f7; padding: 15px; border-radius: 10px;">
+            <label style="font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 8px;">2. ล้างข้อมูลระบบ:</label>
+            <button class="btn btn-danger" style="padding: 10px; font-size: 14px; width: 100%; margin-bottom: 0;" onclick="clearBoardData()">ล้างคิวออเดอร์ทั้งหมดบนบอร์ด</button>
         </div>
 
-        <!-- ปุ่มกลับหน้าหลักจากหน้าฟันเฟือง -->
-        <button class="btn btn-gray" onclick="backToHomeProcess()">ย้อนกลับไปหน้าหลัก</button>
+        <button class="btn btn-gray" onclick="backToMain()">ย้อนกลับหน้าหลัก</button>
     </div>
 
 </div>
 
 <script>
-    let currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
+    // ตัวแปรเก็บสถานะออเดอร์ปัจจุบันที่กำลังเลือก
+    let currentOrder = { veg: '', sauce: '', chicken: '', name: '', role: '', comment: '' };
+    let isDataUnlocked = false; // สถานะการปลดล็อกดูข้อมูลในบอร์ด
 
     function getMaxLimit() {
         return parseInt(localStorage.getItem('kebab_max_limit')) || 5;
     }
 
-    window.onload = function() { checkSaturdayReset(); backToHomeProcess(); };
-    
-    // 🛡️ หัวใจหลัก: ระบบควบคุมการสลับหน้าและควบคุมปุ่มลอยภายนอกอย่างไร้รอยต่อ
-    function navigateTo(stepId) {
-        // 1. ซ่อนทุกหน้าก่อน แล้วเปิดหน้าเป้าหมาย
+    window.onload = function() { checkSaturdayReset(); updateCounter(); };
+
+    // ฟังก์ชันสลับหน้าจออย่างปลอดภัย ไร้รอยต่อ
+    function changePage(stepId) {
         document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
-
-        // 2. ตรวจสอบเงื่อนไขการแสดงผลปุ่มลอยภายนอกเด็ดขาด
-        let boardBtn = document.getElementById('global-board-btn');
-        let gearBtn = document.getElementById('global-gear-btn');
-        
-        if (stepId === 'step-start') {
-            // โชว์ปุ่มลอยเฉพาะที่หน้าแรกสุดเท่านั้น
-            boardBtn.style.setProperty('display', 'block', 'important');
-            gearBtn.style.setProperty('display', 'flex', 'important');
-        } else {
-            // อยู่หน้าอื่นนอกจากหน้าแรก สั่ง "ซ่อนให้เกลี้ยง" ป้องกันปุ่มค้าง
-            boardBtn.style.setProperty('display', 'none', 'important');
-            gearBtn.style.setProperty('display', 'none', 'important');
-        }
     }
 
-    // ฟังก์ชันสั่งถอยกลับหน้าหลักแบบล้างค่าขยะ
+    // ล้างค่าฟอร์มทั้งหมดแล้วถอยกลับหน้าเมนูหลัก
     function backToHomeProcess() {
-        currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
-        
-        let nameInput = document.getElementById('input-name');
-        let roomInput = document.getElementById('input-room');
-        if (nameInput) nameInput.value = '';
-        if (roomInput) roomInput.value = '';
-        
+        currentOrder = { veg: '', sauce: '', chicken: '', name: '', role: '', comment: '' };
+        document.getElementById('input-name').value = '';
+        document.getElementById('select-role').value = '';
+        document.getElementById('input-comment').value = '';
         document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
-        
+        isDataUnlocked = false;
         updateCounter();
-        navigateTo('step-start'); // ดีดกลับหน้าแรก พร้อมดึงปุ่มลอยกลับมา
+        changePage('step-start');
     }
 
-    function openBoardView() {
-        updateBoardView();
-        navigateTo('step-board');
+    function backToMain() {
+        backToHomeProcess();
     }
 
     function checkOrderAvailability() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
         let now = new Date();
-        let dayOfWeek = now.getDay(); 
-        if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) { alert("ขออภัยครับ ระบบปิดรับออเดอร์ในวันศุกร์ เสาร์ และอาทิตย์"); return; }
-        if (boardData.length >= getMaxLimit()) { alert("ขออภัยครับ วันนี้ออเดอร์เต็มแล้ว ไว้มาสั่งใหม่วันต่อไปนะ!"); return; }
-        navigateTo('step-veg');
+        let day = now.getDay();
+        if (day === 5 || day === 6 || day === 0) { alert("ระบบเปิดรับออเดอร์วันจันทร์ - พฤหัสบดี เท่านั้นครับ"); return; }
+        if (boardData.length >= getMaxLimit()) { alert("ออเดอร์ของวันนี้เต็มโควตาเรียบร้อยแล้วครับ!"); return; }
+        changePage('step-food-select');
     }
 
     function updateCounter() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
-        let counterBadge = document.getElementById('order-counter');
-        let btnStart = document.getElementById('btn-start-order');
         let limit = getMaxLimit();
-
         document.getElementById('text-max-limit').innerText = limit;
-        counterBadge.innerText = `ออเดอร์ตอนนี้: ${boardData.length}/${limit} ชิ้น`;
+        document.getElementById('order-counter').innerText = `ออเดอร์ตอนนี้: ${boardData.length}/${limit} ชิ้น`;
+        
+        let btnStart = document.getElementById('btn-start-order');
+        let startMsg = document.getElementById('start-msg');
         
         if (boardData.length >= limit) {
-            counterBadge.style.background = '#868e96';
-            document.getElementById('start-msg').innerText = `❌ ขออภัย วันนี้ออเดอร์เต็มครบ ${limit} ชิ้นแล้วครับ`;
+            document.getElementById('order-counter').style.background = '#868e96';
+            startMsg.innerText = `❌ วันนี้ออเดอร์เต็มครบโควตา ${limit} ชิ้นแล้วครับ`;
             btnStart.innerText = "ออเดอร์เต็มแล้ว";
             btnStart.disabled = true;
         } else {
-            counterBadge.style.background = '#e63946';
-            document.getElementById('start-msg').innerText = `เปิดรับออเดอร์วันจันทร์ - พฤหัสบดี (จำกัดวันละ ${limit} ชิ้นเท่านั้น)`;
+            document.getElementById('order-counter').style.background = '#e63946';
+            startMsg.innerText = `เปิดรับออเดอร์วันจันทร์ - พฤหัสบดี (จำกัดวันละ ${limit} ชิ้น)`;
             btnStart.innerText = "เริ่มสั่งอาหาร";
             btnStart.disabled = false;
         }
     }
 
-    function tempSelect(category, value, btnId) {
+    // ฟังก์ชันจำค่าปุ่มตัวเลือกอาหาร
+    function selectItem(category, value, btnId) {
         currentOrder[category] = value;
-        if(category === 'veg') { document.getElementById('veg-yes').classList.remove('selected'); document.getElementById('veg-no').classList.remove('selected'); }
-        else if(category === 'sauce') { document.getElementById('sauce-salad').classList.remove('selected'); document.getElementById('sauce-cheese').classList.remove('selected'); }
-        else if(category === 'chicken') { document.getElementById('ck-fried').classList.remove('selected'); document.getElementById('ck-boiled').classList.remove('selected'); }
+        if(category === 'veg') { document.getElementById('v-yes').classList.remove('selected'); document.getElementById('v-no').classList.remove('selected'); }
+        else if(category === 'sauce') { document.getElementById('s-salad').classList.remove('selected'); document.getElementById('s-cheese').classList.remove('selected'); }
+        else if(category === 'chicken') { document.getElementById('c-fried').classList.remove('selected'); document.getElementById('c-boiled').classList.remove('selected'); }
         document.getElementById(btnId).classList.add('selected');
     }
 
-    function goToNext(category, nextStepId) { if (!currentOrder[category]) { alert('กรุณากดเลือกตัวเลือกก่อนกดยืนยันครับ'); return; } navigateTo(nextStepId); }
+    function validateFoodSelection() {
+        if (!currentOrder.veg || !currentOrder.sauce || !currentOrder.chicken) {
+            alert('กรุณาเลือกตัวเลือกอาหารให้ครบทุกช่องก่อนไปต่อครับ');
+            return;
+        }
+        changePage('step-identity');
+    }
 
-    function saveIdentity() {
+    function saveIdentityAndShowSummary() {
         let name = document.getElementById('input-name').value.trim();
-        let room = document.getElementById('input-room').value.trim();
-        if (!name || !room) { alert('กรุณากรอกข้อมูลให้ครบถ้วนครับ'); return; }
-        currentOrder.name = name; currentOrder.room = room;
-        let now = new Date();
-        let dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
-        let dayOfWeek = now.getDay();
-        let deliveryDayName = "";
-        if (dayOfWeek === 1) deliveryDayName = "วันอังคาร";
-        if (dayOfWeek === 2) deliveryDayName = "วันพุธ";
-        if (dayOfWeek === 3) deliveryDayName = "วันพฤหัสบดี";
-        if (dayOfWeek === 4) deliveryDayName = "วันศุกร์";
-        currentOrder.orderDate = dateString; currentOrder.deliveryDate = deliveryDayName;
+        let role = document.getElementById('select-role').value;
+        let comment = document.getElementById('input-comment').value.trim();
 
-        document.getElementById('sum-name').innerText = currentOrder.name; document.getElementById('sum-room').innerText = currentOrder.room;
-        document.getElementById('sum-veg').innerText = currentOrder.veg; document.getElementById('sum-sauce').innerText = currentOrder.sauce;
-        document.getElementById('sum-chicken').innerText = currentOrder.chicken; document.getElementById('sum-order-date').innerText = currentOrder.orderDate;
-        document.getElementById('sum-delivery-date').innerText = currentOrder.deliveryDate;
-        navigateTo('step-summary');
+        if (!name || !role) {
+            alert('กรุณากรอกชื่อเล่นและเลือกสถานะของคุณด้วยครับ');
+            return;
+        }
+        currentOrder.name = name;
+        currentOrder.role = role;
+        currentOrder.comment = comment ? comment : 'ไม่มีข้อความพิเศษ';
+
+        document.getElementById('sum-name').innerText = currentOrder.name;
+        document.getElementById('sum-role').innerText = currentOrder.role;
+        document.getElementById('sum-food').innerText = `${currentOrder.veg}, ${currentOrder.sauce}, ${currentOrder.chicken}`;
+        document.getElementById('sum-comment').innerText = currentOrder.comment;
+        
+        changePage('step-summary');
     }
 
-    function confirmAndPublish() {
+    function submitFinalOrder() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
-        if (boardData.length >= getMaxLimit()) { alert("ขออภัย ออเดอร์เต็มโควตาของวันนี้แล้วครับ"); backToHomeProcess(); return; }
-        boardData.push(currentOrder); localStorage.setItem('kebab_board', JSON.stringify(boardData));
-        openBoardView();
+        if (boardData.length >= getMaxLimit()) { alert("ขออภัย ออเดอร์เต็มก่อนการส่งข้อมูลสำเร็จ"); backToHomeProcess(); return; }
+        
+        boardData.push(currentOrder);
+        localStorage.setItem('kebab_board', JSON.stringify(boardData));
+        openBoardPage();
     }
 
-    function updateBoardView() {
+    function openBoardPage() {
+        updateBoardTable();
+        changePage('step-board');
+    }
+
+    // ฟังก์ชันเรนเดอร์ตาราง พร้อมระบบเซนเซอร์ข้อมูลลับ
+    function updateBoardTable() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
-        let tbody = document.getElementById('board-content'); tbody.innerHTML = '';
-        if (boardData.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">ยังไม่มีออเดอร์ในระบบ</td></tr>`; return; }
-        boardData.forEach(item => {
+        let tbody = document.getElementById('board-content');
+        tbody.innerHTML = '';
+
+        if (boardData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#a0aec0; padding: 20px;">ยังไม่มีข้อมูลการสั่งซื้อ</td></tr>`;
+            return;
+        }
+
+        boardData.forEach((item, index) => {
             let tr = document.createElement('tr');
+            
+            // ตรวจสอบสลอตการเปิดเผยข้อมูล
+            let displayRoleStyle = isDataUnlocked ? 'inline-block' : 'none';
+            let displayCommentStyle = isDataUnlocked ? 'block' : 'none';
+            let displayBadgeStyle = isDataUnlocked ? 'none' : 'inline-block';
+
             tr.innerHTML = `
-                <td><strong>${item.name}</strong> <span style="font-size:11px; color:#666;">(${item.room})</span></td>
+                <td><strong>${item.name}</strong><br>
+                    <span class="secure-badge badge-role-${index}" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 ดูสถานะ</span>
+                    <span class="secure-data data-role-${index}" style="display:${displayRoleStyle};">${item.role}</span>
+                </td>
                 <td>• ${item.veg}<br>• ${item.sauce}<br>• ${item.chicken}</td>
-                <td>${item.orderDate}</td>
-                <td style="color:#e63946; font-weight:bold;">${item.deliveryDate}</td>
+                <td>
+                    <span class="secure-badge badge-comment-${index}" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 เปิดอ่านโน้ต</span>
+                    <div class="secure-data data-comment-${index}" style="display:${displayCommentStyle}; font-size:11px; white-space:pre-wrap;">${item.comment}</div>
+                </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    function openSettingsWithPassword() {
-        let passwordInput = prompt("กรุณาใส่รหัสผ่านของพ่อค้าเพื่อเข้าสู่แผงควบคุมหลังบ้าน:");
-        if (passwordInput === null) return;
-        if (passwordInput.replace(/\s+/g, '') === '096665') {
-            document.getElementById('input-max-limit').value = getMaxLimit();
-            navigateTo('step-settings');
+    // ฟังก์ชันกรอกรหัสผ่านเพื่อปลดล็อกบอร์ดข้อมูลลับ
+    function unlockSecretData() {
+        if(isDataUnlocked) return; // ถ้าปลดล็อกอยู่แล้วไม่ต้องถามซ้ำ
+        let pass = prompt("กรุณากรอกรหัสผ่านเพื่อเปิดดูข้อมูลลับ (สถานะ และข้อความพิเศษ):");
+        if(pass === null) return;
+        if(pass.replace(/\s+/g, '') === '096665') {
+            isDataUnlocked = true;
+            updateBoardTable(); // สั่งเรนเดอร์บอร์ดใหม่เพื่ออัปเดตหน้าตาตัวล็อก
         } else {
-            alert('❌ รหัสผ่านไม่ถูกต้อง! ไม่ได้รับอนุญาตให้เข้าถึงระบบหลังบ้าน');
+            alert("❌ รหัสผ่านไม่ถูกต้อง! ไม่ได้รับสิทธิ์ให้ดูข้อมูลส่วนบุคคล");
+        }
+    }
+
+    // ฟังก์ชันระบบหลังบ้านของพ่อค้า
+    function openSettingsWithPassword() {
+        let pass = prompt("กรุณากรอกรหัสผ่านของพ่อค้าเพื่อเข้าแผงควบคุมหลังบ้าน:");
+        if(pass === null) return;
+        if(pass.replace(/\s+/g, '') === '096665') {
+            document.getElementById('input-max-limit').value = getMaxLimit();
+            changePage('step-settings');
+        } else {
+            alert("❌ รหัสผ่านไม่ถูกต้อง!");
         }
     }
 
     function saveNewLimit() {
-        let newLimit = parseInt(document.getElementById('input-max-limit').value);
-        if (!newLimit || newLimit < 1) { alert('กรุณาใส่จำนวนออเดอร์ที่ถูกต้อง (ขั้นต่ำ 1 ชิ้น) ครับ'); return; }
-        localStorage.setItem('kebab_max_limit', newLimit);
-        alert(`💾 บันทึกโควตาออเดอร์สูงสุดเป็น ${newLimit} ชิ้น เรียบร้อยครับ!`);
+        let val = parseInt(document.getElementById('input-max-limit').value);
+        if(!val || val < 1) { alert("กรุณากรอกตัวเลขจำนวนออเดอร์ที่ถูกต้องด้วยครับ"); return; }
+        localStorage.setItem('kebab_max_limit', val);
+        alert(`💾 เปลี่ยนแปลงจำนวนออเดอร์สูงสุดเป็น ${val} ชิ้นเสร็จสิ้น!`);
         backToHomeProcess();
     }
 
-    function clearBoardDataInSettings() {
-        if(confirm('🚨 คุณต้องการล้างรายการออเดอร์ทั้งหมดบนหน้าจอใช่หรือไม่? (ข้อมูลจะหายหมด)')) {
+    function clearBoardData() {
+        if(confirm("⚠️ คุณแน่ใจใช่ไหมว่าต้องการล้างคิวออเดอร์บนหน้าบอร์ดทั้งหมดให้เกลี้ยง?")) {
             localStorage.removeItem('kebab_board');
-            alert('🗑️ ล้างข้อมูลบอร์ดออเดอร์เรียบร้อยแล้วครับ!');
+            alert("🗑️ ล้างบอร์ดรายการเรียบร้อยแล้ว!");
             backToHomeProcess();
         }
     }
