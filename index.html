@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kebab Order System (จำกัด 20 ชิ้น)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #cccccc !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-secondary {
+            background: #4ecdc4;
+        }
+
+        .btn-secondary:hover {
+            background: #36b3ab;
+        }
+
+        .opt-btn {
+            background: #f1f3f5;
+            color: #495057;
+            border: 2px solid #e9ecef;
+        }
+        .opt-btn.selected {
+            background: #e3fafc;
+            color: #0c8599;
+            border: 2px solid #3bc9db;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .summary-box {
+            background: #f1f3f5;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .summary-item {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #495057;
+        }
+
+        .summary-item strong {
+            color: #212529;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #ff6b6b;
+        }
+
+        .board-trigger-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .counter-badge {
+            background: #e63946;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .board-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .board-table th, .board-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .board-table th {
+            background: #f1f3f5;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+
+<button class="board-trigger-btn" onclick="showStep('step-board'); updateBoardView();">📋 ดูบอร์ดออเดอร์</button>
+
+<div class="card">
+    
+    <!-- หน้าแรก: เริ่มสั่งอาหาร -->
+    <div id="step-start" class="step active">
+        <h2>🌯 ร้านเคบับสไตล์คุณ 🌯</h2>
+        <div id="order-counter" class="counter-badge">ออเดอร์ตอนนี้: 0/20 ชิ้น</div>
+        <p id="start-msg" style="color: #6c757d; margin-bottom: 30px;">เปิดรับออเดอร์วันจันทร์ - พฤหัสบดี (จำกัดวันละ 20 ชิ้นเท่านั้น)</p>
+        <button id="btn-start-order" class="btn" onclick="checkOrderAvailability()">เริ่มสั่งอาหาร</button>
+    </div>
+
+    <!-- ขั้นตอนที่ 1: เลือกผัก -->
+    <div id="step-veg" class="step">
+        <h2>ขั้นตอนที่ 1: ใส่ผักไหม? 🥗</h2>
+        <button id="veg-yes" class="btn opt-btn" onclick="tempSelect('veg', 'ใส่ผัก', 'veg-yes')">ใส่ผัก</button>
+        <button id="veg-no" class="btn opt-btn" onclick="tempSelect('veg', 'ไม่ใส่ผัก', 'veg-no')">ไม่ใส่ผัก</button>
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+        <button class="btn" onclick="goToNext('veg', 'step-sauce')">กดยืนยันเพื่อไปต่อ</button>
+    </div>
+
+    <!-- ขั้นตอนที่ 2: เลือกซอส -->
+    <div id="step-sauce" class="step">
+        <h2>ขั้นตอนที่ 2: เลือกซอส 🍯</h2>
+        <button id="sauce-salad" class="btn opt-btn" onclick="tempSelect('sauce', 'ซอสสลัด (เหมาะกับอกไก่)', 'sauce-salad')">ซอสสลัด (เหมาะกับอกไก่)</button>
+        <button id="sauce-cheese" class="btn opt-btn" onclick="tempSelect('sauce', 'ซอสชีส', 'sauce-cheese')">ซอสชีส</button>
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+        <button class="btn" onclick="goToNext('sauce', 'step-chicken')">กดยืนยันเพื่อไปต่อ</button>
+    </div>
+
+    <!-- ขั้นตอนที่ 3: เลือกไก่ -->
+    <div id="step-chicken" class="step">
+        <h2>ขั้นตอนที่ 3: เลือกประเภทไก่ 🍗</h2>
+        <button id="ck-fried" class="btn opt-btn" onclick="tempSelect('chicken', 'ไก่ทอด', 'ck-fried')">ไก่ทอด</button>
+        <button id="ck-boiled" class="btn opt-btn" onclick="tempSelect('chicken', 'อกไก่ต้ม', 'ck-boiled')">อกไก่ต้ม</button>
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+        <button class="btn" onclick="goToNext('chicken', 'step-identity')">กดยืนยันเพื่อไปต่อ</button>
+    </div>
+
+    <!-- ขั้นตอนที่ 4: ยืนยันชื่อและห้องเรียน -->
+    <div id="step-identity" class="step">
+        <h2>ขั้นตอนที่ 4: ข้อมูลผู้สั่ง 👤</h2>
+        <input type="text" id="input-name" placeholder="ใส่ชื่อเล่นของคุณ">
+        <input type="text" id="input-room" placeholder="เรียนอยู่ชั้นไหน/ห้องอะไร (เช่น ม.6/1)">
+        <button class="btn" onclick="saveIdentity()">กดยืนยัน</button>
+    </div>
+
+    <!-- ขั้นตอนที่ 5: ทวนรายการออเดอร์ -->
+    <div id="step-summary" class="step">
+        <h2>ทวนรายการออเดอร์ของคุณ 👀</h2>
+        <div class="summary-box">
+            <div class="summary-item"><strong>ชื่อผู้สั่ง:</strong> <span id="sum-name"></span> (<span id="sum-room"></span>)</div>
+            <div class="summary-item"><strong>การใส่ผัก:</strong> <span id="sum-veg"></span></div>
+            <div class="summary-item"><strong>ซอสที่เลือก:</strong> <span id="sum-sauce"></span></div>
+            <div class="summary-item"><strong>ประเภทไก่:</strong> <span id="sum-chicken"></span></div>
+            <div class="summary-item" style="color: #0c8599;"><strong>วันที่สั่ง:</strong> <span id="sum-order-date"></span></div>
+            <div class="summary-item" style="color: #e63946;"><strong>วันที่จะได้รับ:</strong> <span id="sum-delivery-date"></span></div>
+        </div>
+        <p style="color: #e63946; font-size: 13px; margin-bottom: 15px;">*กรุณาตรวจสอบว่าข้อมูลถูกต้องและไม่มีข้อผิดพลาด</p>
+        <button class="btn" onclick="confirmAndPublish()">กดยืนยันรายการออเดอร์</button>
+        <button class="btn btn-secondary" style="background: #6c757d;" onclick="showStep('step-veg')">กลับไปแก้ไข</button>
+    </div>
+
+    <!-- หน้าบอร์ดรวมออเดอร์ -->
+    <div id="step-board" class="step">
+        <h2>📋 บอร์ดรายการสั่งซื้อรวม</h2>
+        <p style="color: #868e96; font-size: 12px; margin-bottom: 10px;">(บอร์ดจะรีเซ็ตอัตโนมัติทุกๆ วันเสาร์)</p>
+        
+        <div style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #dee2e6; border-radius: 8px;">
+            <table class="board-table">
+                <thead>
+                    <tr>
+                        <th>ผู้สั่ง</th>
+                        <th>ผัก/ซอส/ไก่</th>
+                        <th>วันที่สั่ง</th>
+                        <th>วันรับของ</th>
+                    </tr>
+                </thead>
+                <tbody id="board-content">
+                    <!-- รายการออเดอร์จะมาโผล่ตรงนี้ -->
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-secondary" onclick="resetOrderProcess()">กลับไปหน้าแรก / สั่งเพิ่ม</button>
+        <button class="btn" style="background: #e63946; padding: 5px 10px; font-size: 12px; width: auto;" onclick="clearBoardData()">ล้างบอร์ดทั้งหมด (พ่อค้า)</button>
+    </div>
+
+</div>
+
+<script>
+    let currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
+
+    // รันทุกครั้งเมื่อเปิดหน้าเว็บเพื่ออัปเดตจำนวนออเดอร์และเช็ควันเสาร์
+    window.onload = function() {
+        checkSaturdayReset();
+        updateCounter();
+    };
+
+    function showStep(stepId) {
+        document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+        document.getElementById(stepId).classList.add('active');
+    }
+
+    // ตรวจสอบเงื่อนไข วันสั่ง และจำนวนชิ้น ก่อนให้เข้าหน้าฟอร์ม
+    function checkOrderAvailability() {
+        let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
+        let now = new Date();
+        let dayOfWeek = now.getDay(); // 0 = อาทิตย์, 1 = จันทร์, ..., 5 = ศุกร์, 6 = เสาร์
+
+        // 1. ตรวจสอบเงื่อนไขวัน (วันศุกร์=5, เสาร์=6, อาทิตย์=0 ห้ามสั่ง)
+        if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
+            alert("ขออภัยครับ ระบบปิดรับออเดอร์ในวันศุกร์ เสาร์ และอาทิตย์ จะเปิดให้สั่งอีกครั้งวันจันทร์ครับ");
+            return;
+        }
+
+        // 2. ตรวจสอบจำนวนชิ้น (ไม่เกิน 20)
+        if (boardData.length >= 20) {
+            alert("ขออภัยครับ วันนี้ออเดอร์เต็ม 20 ชิ้นแล้ว ไว้มาสั่งใหม่วันต่อไปนะ!");
+            return;
+        }
+
+        // ผ่านเงื่อนไข ไปต่อหน้าเลือกผัก
+        showStep('step-veg');
+    }
+
+    function updateCounter() {
+        let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
+        let counterBadge = document.getElementById('order-counter');
+        let btnStart = document.getElementById('btn-start-order');
+        
+        counterBadge.innerText = `ออเดอร์ตอนนี้: ${boardData.length}/20 ชิ้น`;
+
+        if (boardData.length >= 20) {
+            counterBadge.style.background = '#868e96';
+            document.getElementById('start-msg').innerText = "❌ ขออภัย วันนี้ออเดอร์เต็มครบ 20 ชิ้นแล้วครับ";
+            btnStart.innerText = "ออเดอร์เต็มแล้ว";
+            btnStart.disabled = true;
+        }
+    }
+
+    function tempSelect(category, value, btnId) {
+        currentOrder[category] = value;
+        if(category === 'veg') {
+            document.getElementById('veg-yes').classList.remove('selected');
+            document.getElementById('veg-no').classList.remove('selected');
+        } else if(category === 'sauce') {
+            document.getElementById('sauce-salad').classList.remove('selected');
+            document.getElementById('sauce-cheese').classList.remove('selected');
+        } else if(category === 'chicken') {
+            document.getElementById('ck-fried').classList.remove('selected');
+            document.getElementById('ck-boiled').classList.remove('selected');
+        }
+        document.getElementById(btnId).classList.add('selected');
+    }
+
+    function goToNext(category, nextStepId) {
+        if (!currentOrder[category]) {
+            alert('กรุณากดเลือกตัวเลือกก่อนกดยืนยันครับ');
+            return;
+        }
+        showStep(nextStepId);
+    }
+
+    function saveIdentity() {
+        let name = document.getElementById('input-name').value.trim();
+        let room = document.getElementById('input-room').value.trim();
+        
+        if (!name || !room) {
+            alert('กรุณากรอกชื่อเล่นและชั้น/ห้องเรียนให้ครบถ้วนครับ');
+            return;
+        }
+        currentOrder.name = name;
+        currentOrder.room = room;
+
+        // คำนวณวันที่สั่ง และวันรับของ
+        let now = new Date();
+        let dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+        let dayOfWeek = now.getDay();
+        
+        let deliveryDayName = "";
+        if (dayOfWeek === 1) deliveryDayName = "วันอังคาร";
+        if (dayOfWeek === 2) deliveryDayName = "วันพุธ";
+        if (dayOfWeek === 3) deliveryDayName = "วันพฤหัสบดี";
+        if (dayOfWeek === 4) deliveryDayName = "วันศุกร์";
+
+        currentOrder.orderDate = dateString;
+        currentOrder.deliveryDate = deliveryDayName;
+
+        // แสดงผลหน้าทวนรายการ
+        document.getElementById('sum-name').innerText = currentOrder.name;
+        document.getElementById('sum-room').innerText = currentOrder.room;
+        document.getElementById('sum-veg').innerText = currentOrder.veg;
+        document.getElementById('sum-sauce').innerText = currentOrder.sauce;
+        document.getElementById('sum-chicken').innerText = currentOrder.chicken;
+        document.getElementById('sum-order-date').innerText = currentOrder.orderDate;
+        document.getElementById('sum-delivery-date').innerText = currentOrder.deliveryDate;
+
+        showStep('step-summary');
+    }
+
+    function confirmAndPublish() {
+        let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
+        
+        if (boardData.length >= 20) {
+            alert("ขออภัย มีคนเพิ่งสั่งตัดหน้าไป ทำให้ออเดอร์เต็ม 20 ชิ้นแล้วครับ");
+            resetOrderProcess();
+            return;
+        }
+
+        boardData.push(currentOrder);
+        localStorage.setItem('kebab_board', JSON.stringify(boardData));
+        
+        updateCounter();
+        updateBoardView();
+        showStep('step-board');
+    }
+
+    function updateBoardView() {
+        let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
+        let tbody = document.getElementById('board-content');
+        tbody.innerHTML = '';
+        
+        if (boardData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">ยังไม่มีออเดอร์ในระบบ</td></tr>`;
+            return;
+        }
+
+        boardData.forEach(item => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.name}</strong> <span style="font-size:11px; color:#666;">(${item.room})</span></td>
+                <td>• ${item.veg}<br>• ${item.sauce}<br>• ${item.chicken}</td>
+                <td>${item.orderDate}</td>
+                <td style="color:#e63946; font-weight:bold;">${item.deliveryDate}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function resetOrderProcess() {
+        currentOrder = { veg: '', sauce: '', chicken: '', name: '', room: '', orderDate: '', deliveryDate: '' };
+        document.getElementById('input-name').value = '';
+        document.getElementById('input-room').value = '';
+        document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
+        updateCounter();
+        showStep('step-start');
+    }
+
+    function clearBoardData() {
+        if(confirm('คุณต้องการล้างรายการออเดอร์ทั้งหมดบนบอร์ดนี้ใช่หรือไม่?')) {
+            localStorage.removeItem('kebab_board');
+            updateCounter();
+            updateBoardView();
+        }
+    }
+
+    // ฟังก์ชันเช็ครีเซ็ตทุกวันเสาร์อัตโนมัติ
+    function checkSaturdayReset() {
+        let now = new Date();
+        if (now.getDay() === 6) { // วันเสาร์ = 6
+            localStorage.removeItem('kebab_board');
+        }
+    }
+</script>
+
+</body>
+</html>
