@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebab Order System New Generation</title>
+    <title>Kebab Order System Perfect Edition</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f7f9fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -11,7 +11,6 @@
         h2 { color: #2c3e50; margin-bottom: 20px; font-size: 24px; }
         h3 { color: #4a5568; margin-bottom: 15px; font-size: 18px; text-align: left; }
         
-        /* ปุ่มหลักภายในแอป */
         .btn { background: #ff6b6b; color: white; border: none; padding: 14px 25px; font-size: 18px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; width: 100%; margin-bottom: 12px; font-weight: bold; }
         .btn:hover { background: #ff5252; transform: translateY(-1px); }
         .btn:disabled { background: #cccccc !important; cursor: not-allowed; transform: none !important; }
@@ -22,21 +21,17 @@
         .btn-gray { background: #6c757d; color: white; }
         .btn-gray:hover { background: #5a6268; }
         
-        /* ปุ่มตัวเลือกสินค้า */
         .opt-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .opt-btn { background: #f1f3f5; color: #495057; border: 2px solid #e9ecef; padding: 12px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; font-size: 15px; transition: all 0.2s; }
         .opt-btn.selected { background: #e3fafc; color: #0c8599; border: 2px solid #3bc9db; }
         
-        /* ฟอร์มและอินพุต */
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ced4da; border-radius: 8px; font-size: 16px; outline: none; }
         input:focus, select:focus, textarea:focus { border-color: #ff6b6b; }
         textarea { resize: vertical; min-height: 80px; }
         
-        /* การสลับหน้าจอ */
         .step { display: none; }
         .step.active { display: block; }
         
-        /* แผงปุ่มด้านล่างของหน้าแรก */
         .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; gap: 15px; }
         .nav-mini-btn { background: #4a5568; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; flex: 1; }
         .nav-mini-btn.gear { background: #a0aec0; max-width: 50px; font-size: 16px; }
@@ -48,8 +43,7 @@
         .board-table th, .board-table td { padding: 8px; border-bottom: 1px solid #dee2e6; vertical-align: top; }
         .board-table th { background: #f1f3f5; color: #495057; }
         
-        /* คลาสสปอยเลอร์/ซ่อนข้อมูล */
-        .secure-badge { background: #edf2f7; color: #718096; border: 1px dashed #cbd5e0; padding: 2px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; display: inline-block; font-weight: normal; }
+        .secure-badge { background: #edf2f7; color: #718096; border: 1px dashed #cbd5e0; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; display: inline-block; font-weight: normal; margin-top: 4px; }
         .secure-data { display: none; background: #fffaf0; color: #dd6b20; font-weight: bold; padding: 2px 4px; border-radius: 4px; border: 1px solid #fbd38d; }
     </style>
 </head>
@@ -65,14 +59,13 @@
         
         <button id="btn-start-order" class="btn" onclick="checkOrderAvailability()">เริ่มสั่งอาหาร</button>
         
-        <!-- แผงปุ่มด้านล่างฝังไว้ภายในการ์ด ป้องกันปุ่มลอยค้างจอ -->
         <div class="nav-row">
             <button class="nav-mini-btn" onclick="openBoardPage()">📋 ดูบอร์ดออเดอร์</button>
             <button class="nav-mini-btn gear" onclick="openSettingsWithPassword()">⚙️</button>
         </div>
     </div>
 
-    <!-- 2. หน้าเลือกรายการอาหาร (วัตถุดิบ) -->
+    <!-- 2. หน้าเลือกรายการอาหาร -->
     <div id="step-food-select" class="step">
         <h2>เลือกสูตรเคบับของคุณ 🍳</h2>
         
@@ -95,13 +88,12 @@
         </div>
 
         <button class="btn" onclick="validateFoodSelection()">กดยืนยันเพื่อไปต่อ</button>
-        <button class="btn btn-gray" onclick="backToMain()">ย้อนกลับ</button>
+        <button class="btn btn-gray" onclick="backToMain()">ย้อนกลับหน้าหลัก</button>
     </div>
 
-    <!-- 3. หน้ายืนยันตัวตน (ข้อมูลส่วนตัว + คอมเมนต์) -->
+    <!-- 3. หน้ายืนยันตัวตน -->
     <div id="step-identity" class="step">
         <h2>ข้อมูลผู้สั่งซื้อ 👤</h2>
-        
         <input type="text" id="input-name" placeholder="ใส่ชื่อเล่นของคุณ">
         
         <select id="select-role">
@@ -113,10 +105,10 @@
         <textarea id="input-comment" placeholder="ต้องการอะไรเป็นพิเศษไหม? พิมพ์บอกได้ที่นี่เลย (ข้อความนี้จะถูกปิดเป็นความลับ)"></textarea>
 
         <button class="btn" onclick="saveIdentityAndShowSummary()">ตรวจสอบรายการ</button>
-        <button class="btn btn-gray" onclick="changePage('step-food-select')">ย้อนกลับ</button>
+        <button class="btn btn-gray" onclick="changePage('step-food-select')">ย้อนกลับแก้ไขอาหาร</button>
     </div>
 
-    <!-- 4. หน้าสรุปทวนรายการก่อนบันทึก -->
+    <!-- 4. หน้าสรุปทวนรายการ -->
     <div id="step-summary" class="step">
         <h2>ทวนรายการออเดอร์ 👀</h2>
         <div class="summary-box" style="font-size: 15px; line-height: 1.6;">
@@ -126,17 +118,16 @@
                 <strong>โน้ตพิเศษ:</strong> <span id="sum-comment"></span>
             </div>
         </div>
-        <button class="btn id="btn-submit" onclick="submitFinalOrder()">กดยืนยันรายการสั่งซื้อ</button>
-        <button class="btn btn-gray" onclick="changePage('step-identity')">ย้อนกลับแก้ไข</button>
+        <button id="btn-submit" class="btn" onclick="submitFinalOrder()">กดยืนยันรายการสั่งซื้อ</button>
+        <button class="btn btn-gray" onclick="changePage('step-identity')">ย้อนกลับแก้ไขข้อมูล</button>
     </div>
 
-    <!-- 5. หน้าบอร์ดรวมรายการ (ปกปิดข้อมูลลับ) -->
+    <!-- 5. หน้าบอร์ดรวมรายการ -->
     <div id="step-board" class="step">
         <h2>📋 รายการสั่งซื้อทั้งหมด</h2>
         <p style="color: #a0aec0; font-size: 11px; margin-bottom: 10px;">ข้อมูลสถานะและข้อความพิเศษถูกปิดกั้นไว้เพื่อความเป็นส่วนตัว</p>
         
-        <!-- ปุ่มกดเพื่อเปิดหน้ากากข้อมูลลับในตารางทั้งหมด -->
-        <button class="btn btn-secondary" style="padding: 6px; font-size: 12px; margin-bottom: 10px; width: auto;" onclick="unlockSecretData()">🔓 ใส่รหัสเพื่อเปิดดูข้อมูลลับ</button>
+        <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 13px; margin-bottom: 12px; width: auto;" onclick="unlockSecretData()">🔓 ใส่รหัสเพื่อเปิดดูข้อมูลลับ</button>
 
         <div style="max-height: 240px; overflow-y: auto; margin-bottom: 25px; border: 1px solid #dee2e6; border-radius: 8px;">
             <table class="board-table">
@@ -153,7 +144,7 @@
         <button class="btn btn-gray" onclick="backToMain()">กลับสู่หน้าหลัก</button>
     </div>
 
-    <!-- 6. ⚙️ หน้าตั้งค่าควบคุม (แผงพ่อค้า) -->
+    <!-- 6. ⚙️ หน้าตั้งค่าควบคุม -->
     <div id="step-settings" class="step">
         <h2>⚙️ แผงจัดการร้านค้า</h2>
         <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">สิทธิ์การจัดการเฉพาะของพ่อค้าเคบับเท่านั้น</p>
@@ -175,9 +166,9 @@
 </div>
 
 <script>
-    // ตัวแปรเก็บสถานะออเดอร์ปัจจุบันที่กำลังเลือก
+    // เริ่มต้นตัวแปรเก็บสถานะให้คลีนที่สุด
     let currentOrder = { veg: '', sauce: '', chicken: '', name: '', role: '', comment: '' };
-    let isDataUnlocked = false; // สถานะการปลดล็อกดูข้อมูลในบอร์ด
+    let isDataUnlocked = false; 
 
     function getMaxLimit() {
         return parseInt(localStorage.getItem('kebab_max_limit')) || 5;
@@ -185,20 +176,19 @@
 
     window.onload = function() { checkSaturdayReset(); updateCounter(); };
 
-    // ฟังก์ชันสลับหน้าจออย่างปลอดภัย ไร้รอยต่อ
     function changePage(stepId) {
         document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
     }
 
-    // ล้างค่าฟอร์มทั้งหมดแล้วถอยกลับหน้าเมนูหลัก
+    // [แก้ไขจุดบกพร่อง] ล้างค่าและล้างคลาสปุ่มที่เลือกไว้เดิมให้หมดอย่างแท้จริงตอนกลับหน้าหลัก
     function backToHomeProcess() {
         currentOrder = { veg: '', sauce: '', chicken: '', name: '', role: '', comment: '' };
         document.getElementById('input-name').value = '';
         document.getElementById('select-role').value = '';
         document.getElementById('input-comment').value = '';
         document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
-        isDataUnlocked = false;
+        isDataUnlocked = false; // [แก้ไขจุดบกพร่อง] ล็อกบอร์ดข้อมูลส่วนตัวคืนทุกครั้งที่กลับหน้าหลัก
         updateCounter();
         changePage('step-start');
     }
@@ -213,6 +203,9 @@
         let day = now.getDay();
         if (day === 5 || day === 6 || day === 0) { alert("ระบบเปิดรับออเดอร์วันจันทร์ - พฤหัสบดี เท่านั้นครับ"); return; }
         if (boardData.length >= getMaxLimit()) { alert("ออเดอร์ของวันนี้เต็มโควตาเรียบร้อยแล้วครับ!"); return; }
+        
+        // [แก้ไขจุดบกพร่อง] รีเซ็ตหน้าเลือกอาหารให้สะอาด ไม่มีปุ่มค้างเก่าโชว์
+        document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
         changePage('step-food-select');
     }
 
@@ -238,7 +231,6 @@
         }
     }
 
-    // ฟังก์ชันจำค่าปุ่มตัวเลือกอาหาร
     function selectItem(category, value, btnId) {
         currentOrder[category] = value;
         if(category === 'veg') { document.getElementById('v-yes').classList.remove('selected'); document.getElementById('v-no').classList.remove('selected'); }
@@ -249,7 +241,7 @@
 
     function validateFoodSelection() {
         if (!currentOrder.veg || !currentOrder.sauce || !currentOrder.chicken) {
-            alert('กรุณาเลือกตัวเลือกอาหารให้ครบทุกช่องก่อนไปต่อครับ');
+            alert('กรุณาเลือกตัวเลือกอาหารให้ครบทั้ง 3 รายการก่อนไปต่อครับ');
             return;
         }
         changePage('step-identity');
@@ -290,7 +282,6 @@
         changePage('step-board');
     }
 
-    // ฟังก์ชันเรนเดอร์ตาราง พร้อมระบบเซนเซอร์ข้อมูลลับ
     function updateBoardTable() {
         let boardData = JSON.parse(localStorage.getItem('kebab_board')) || [];
         let tbody = document.getElementById('board-content');
@@ -304,40 +295,37 @@
         boardData.forEach((item, index) => {
             let tr = document.createElement('tr');
             
-            // ตรวจสอบสลอตการเปิดเผยข้อมูล
             let displayRoleStyle = isDataUnlocked ? 'inline-block' : 'none';
             let displayCommentStyle = isDataUnlocked ? 'block' : 'none';
             let displayBadgeStyle = isDataUnlocked ? 'none' : 'inline-block';
 
             tr.innerHTML = `
                 <td><strong>${item.name}</strong><br>
-                    <span class="secure-badge badge-role-${index}" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 ดูสถานะ</span>
-                    <span class="secure-data data-role-${index}" style="display:${displayRoleStyle};">${item.role}</span>
+                    <span class="secure-badge" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 ดูสถานะ</span>
+                    <span class="secure-data" style="display:${displayRoleStyle};">${item.role}</span>
                 </td>
                 <td>• ${item.veg}<br>• ${item.sauce}<br>• ${item.chicken}</td>
                 <td>
-                    <span class="secure-badge badge-comment-${index}" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 เปิดอ่านโน้ต</span>
-                    <div class="secure-data data-comment-${index}" style="display:${displayCommentStyle}; font-size:11px; white-space:pre-wrap;">${item.comment}</div>
+                    <span class="secure-badge" style="display:${displayBadgeStyle};" onclick="unlockSecretData()">🔒 เปิดอ่านโน้ต</span>
+                    <div class="secure-data" style="display:${displayCommentStyle}; font-size:11px; white-space:pre-wrap;">${item.comment}</div>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // ฟังก์ชันกรอกรหัสผ่านเพื่อปลดล็อกบอร์ดข้อมูลลับ
     function unlockSecretData() {
-        if(isDataUnlocked) return; // ถ้าปลดล็อกอยู่แล้วไม่ต้องถามซ้ำ
+        if(isDataUnlocked) return; 
         let pass = prompt("กรุณากรอกรหัสผ่านเพื่อเปิดดูข้อมูลลับ (สถานะ และข้อความพิเศษ):");
         if(pass === null) return;
         if(pass.replace(/\s+/g, '') === '096665') {
             isDataUnlocked = true;
-            updateBoardTable(); // สั่งเรนเดอร์บอร์ดใหม่เพื่ออัปเดตหน้าตาตัวล็อก
+            updateBoardTable(); 
         } else {
             alert("❌ รหัสผ่านไม่ถูกต้อง! ไม่ได้รับสิทธิ์ให้ดูข้อมูลส่วนบุคคล");
         }
     }
 
-    // ฟังก์ชันระบบหลังบ้านของพ่อค้า
     function openSettingsWithPassword() {
         let pass = prompt("กรุณากรอกรหัสผ่านของพ่อค้าเพื่อเข้าแผงควบคุมหลังบ้าน:");
         if(pass === null) return;
